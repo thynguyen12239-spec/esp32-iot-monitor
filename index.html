@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giám sát Môi trường IoT - ESP32</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-6 font-sans">
+  <div class="max-w-md w-full bg-slate-800 rounded-2xl p-8 shadow-2xl border border-slate-700">
+    <div class="text-center mb-8">
+      <h1 class="text-2xl font-bold tracking-tight text-white">Trạm Quan Trắc IoT</h1>
+      <p class="text-xs text-slate-400 mt-1">Dữ liệu thời gian thực từ ESP32 qua Firebase</p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Thẻ Nhiệt độ -->
+      <div class="bg-slate-700/50 p-5 rounded-xl border border-rose-500/30 text-center">
+        <span class="text-xs font-semibold text-rose-400 uppercase tracking-wider">Nhiệt độ</span>
+        <div class="text-4xl font-extrabold text-rose-500 my-3">
+          <span id="temp-val">--</span><span class="text-xl">°C</span>
+        </div>
+        <div class="text-[11px] text-slate-400">DHT11 Sensor</div>
+      </div>
+
+      <!-- Thẻ Độ ẩm -->
+      <div class="bg-slate-700/50 p-5 rounded-xl border border-sky-500/30 text-center">
+        <span class="text-xs font-semibold text-sky-400 uppercase tracking-wider">Độ ẩm</span>
+        <div class="text-4xl font-extrabold text-sky-400 my-3">
+          <span id="humi-val">--</span><span class="text-xl">%</span>
+        </div>
+        <div class="text-[11px] text-slate-400">Không khí</div>
+      </div>
+    </div>
+
+    <div class="mt-8 pt-4 border-t border-slate-700/60 flex items-center justify-between text-xs text-slate-400">
+      <span>Cập nhật lần cuối:</span>
+      <span id="last-update" class="font-mono text-emerald-400">Đang chờ dữ liệu...</span>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://iot-esp32-cc72f-default-rtdb.asia-southeast1.firebasedatabase.app"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    db.ref("sensor").on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        document.getElementById("temp-val").innerText = data.temperature !== undefined ? data.temperature : "--";
+        document.getElementById("humi-val").innerText = data.humidity !== undefined ? data.humidity : "--";
+        document.getElementById("last-update").innerText = new Date().toLocaleTimeString();
+      }
+    }, (error) => {
+      console.error("Lỗi khi kết nối Firebase:", error);
+    });
+  </script>
+</body>
+</html>
